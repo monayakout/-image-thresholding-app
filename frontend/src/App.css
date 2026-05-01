@@ -1,0 +1,54 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: #f3f4f6;
+  color: #111827;
+  min-height: 100vh;
+}
+
+.app { min-height: 100vh; display: flex; flex-direction: column; }
+
+.app-header {
+  background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+  color: white;
+  padding: 24px 32px;
+}
+
+.app-header h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em; }
+.subtitle { margin-top: 6px; opacity: 0.8; font-size: 0.9rem; }
+
+.app-main {
+  flex: 1;
+  display: flex;
+  gap: 24px;
+  padding: 24px;
+  align-items: flex-start;
+}
+
+.panel { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.panel-left { width: 320px; flex-shrink: 0; display: flex; flex-direction: column; gap: 20px; }
+.panel-right { flex: 1; min-width: 0; }
+
+.btn-process {
+  width: 100%; padding: 12px;
+  background: #2563eb; color: white;
+  border: none; border-radius: 8px;
+  font-size: 1rem; font-weight: 600;
+  cursor: pointer; transition: background 0.2s;
+}
+.btn-process:hover:not(:disabled) { background: #1d4ed8; }
+.btn-process:disabled { background: #93c5fd; cursor: not-allowed; }
+
+.error-msg {
+  color: #dc2626; font-size: 0.85rem;
+  background: #fef2f2; border: 1px solid #fecaca;
+  padding: 10px 14px; border-radius: 6px;
+}
+
+.placeholder { text-align: center; color: #9ca3af; padding: 60px 20px; }
+
+@media (max-width: 900px) {
+  .app-main { flex-direction: column; }
+  .panel-left { width: 100%; }
+}

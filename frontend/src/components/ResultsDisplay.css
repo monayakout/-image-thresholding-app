@@ -1,0 +1,43 @@
+.results-display h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 16px; color: #374151; }
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.result-card {
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 14px;
+  background: #fff;
+  border-top: 3px solid var(--accent, #e5e7eb);
+  transition: box-shadow 0.2s;
+}
+.result-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.1); }
+
+.result-card-header { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 10px; }
+
+.method-tag { font-size: 0.75rem; font-weight: 600; padding: 3px 8px; border-radius: 999px; }
+
+.threshold-badge {
+  font-size: 0.72rem; font-weight: 600;
+  background: #f3f4f6; color: #374151;
+  padding: 2px 7px; border-radius: 4px;
+  font-family: monospace;
+}
+
+.result-image-wrapper { position: relative; margin-bottom: 8px; }
+
+.result-img { width: 100%; border-radius: 6px; display: block; background: #f9fafb; }
+
+.toggle-btn {
+  position: absolute; bottom: 6px; right: 6px;
+  background: rgba(0,0,0,0.55); color: white;
+  border: none; border-radius: 4px;
+  font-size: 0.7rem; padding: 3px 7px; cursor: pointer;
+}
+.toggle-btn:hover { background: rgba(0,0,0,0.8); }
+
+.result-desc { font-size: 0.78rem; color: #6b7280; line-height: 1.5; }
+.original-card { --accent: #9ca3af; }
