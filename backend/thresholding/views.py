@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.parsers import MultiPartParser, FormParser
 from .processing import run_all_thresholds
+import traceback
 
 
 class ThresholdImageView(APIView):
@@ -33,7 +34,10 @@ class ThresholdImageView(APIView):
                 local_offset=local_offset,
             )
         except Exception as e:
-            return Response({'error': f'Processing failed: {str(e)}'}, status=500)
+            tb = traceback.format_exc()
+            print("=== PROCESSING ERROR ===")
+            print(tb)
+            return Response({'error': str(e), 'traceback': tb}, status=500)
 
         return Response(result, status=status.HTTP_200_OK)
 
