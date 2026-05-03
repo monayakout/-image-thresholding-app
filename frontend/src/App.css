@@ -18,6 +18,35 @@ body {
 .app-header h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em; }
 .subtitle { margin-top: 6px; opacity: 0.8; font-size: 0.9rem; }
 
+.app-tabs {
+  display: flex;
+  gap: 8px;
+  margin-top: 18px;
+  flex-wrap: wrap;
+}
+
+.app-tab {
+  padding: 8px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.app-tab:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.app-tab-active {
+  background: white;
+  color: #1e3a5f;
+  border-color: white;
+}
+
 .app-main {
   flex: 1;
   display: flex;
@@ -27,7 +56,7 @@ body {
 }
 
 .panel { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-.panel-left { width: 320px; flex-shrink: 0; display: flex; flex-direction: column; gap: 20px; }
+.panel-left { width: 340px; flex-shrink: 0; display: flex; flex-direction: column; gap: 20px; }
 .panel-right { flex: 1; min-width: 0; }
 
 .btn-process {

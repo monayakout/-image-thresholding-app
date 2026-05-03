@@ -1,0 +1,95 @@
+.segmentation-display {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.segmentation-display h2 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #1e3a5f;
+}
+
+.segmentation-meta {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+.segmentation-method-pill {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.segmentation-desc {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: #475569;
+  line-height: 1.45;
+}
+
+.segmentation-params {
+  margin-top: 12px;
+  display: grid;
+  gap: 6px;
+  font-size: 0.8rem;
+}
+
+.param-row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 8px;
+}
+
+.param-row dt {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.param-row dd {
+  color: #0f172a;
+  font-family: ui-monospace, monospace;
+  word-break: break-all;
+}
+
+.segmentation-images {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .segmentation-images {
+    grid-template-columns: 1fr;
+  }
+}
+
+.seg-figure {
+  margin: 0;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.seg-figure figcaption {
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.seg-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  vertical-align: middle;
+}

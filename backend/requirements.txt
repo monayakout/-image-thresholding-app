@@ -1,0 +1,5 @@
+Django>=4.2
+djangorestframework>=3.14
+Pillow>=10.0
+numpy>=1.24
+scikit-image>=0.22
