@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'thresholding',
     'segmentation',
+    'face_recognition',
 ]
 
 MIDDLEWARE = [

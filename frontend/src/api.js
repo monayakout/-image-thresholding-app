@@ -50,3 +50,13 @@ export async function checkHealth() {
   const response = await axios.get(`${BASE_URL}/health/`);
   return response.data;
 }
+
+export async function predictFace(file) {
+  const formData = new FormData();
+  formData.append('image', file);
+
+  const response = await axios.post(`${BASE_URL}/face-recognition/predict/`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return response.data;
+}
