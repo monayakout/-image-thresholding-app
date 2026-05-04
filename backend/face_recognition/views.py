@@ -100,14 +100,12 @@ class PredictFaceView(APIView):
                 
                 # Predict
                 pred = knn_model.predict(pca_transformed)
-                proba = knn_model.predict_proba(pca_transformed)
                 
                 class_id = int(pred[0])
-                confidence = float(np.max(proba)) * 100
                 
                 # Draw Bounding Box and Text
                 cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
-                text = f"Subj {class_id} ({confidence:.1f}%)"
+                text = f"Subj {class_id}"
                 cv2.putText(img, text, (x, y - 10 if y > 20 else y + h + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
                 
             # Encode image to base64
