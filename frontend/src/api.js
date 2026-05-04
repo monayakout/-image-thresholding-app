@@ -60,3 +60,13 @@ export async function predictFace(file) {
   });
   return response.data;
 }
+
+export async function detectFace(file) {
+  const formData = new FormData();
+  formData.append('image', file);
+
+  const response = await axios.post(`${BASE_URL}/face-recognition/detect/`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return response.data;
+}
