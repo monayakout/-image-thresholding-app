@@ -1,8 +1,6 @@
 """
 K-means image segmentation — implemented from scratch (NumPy + PIL only).
-
-Clusters pixels in unsupervised fashion using intensity (grayscale) or RGB
-feature vectors. No scikit-learn or other ML libraries.
+Simplified for readability and learning.
 """
 
 from __future__ import annotations
@@ -16,7 +14,7 @@ from PIL import Image
 
 
 class KMeansSegmentation:
-    """Lloyd's k-means on pixel features (1-D gray or 3-D RGB, normalized to [0, 1])."""
+    """Simple K-Means on pixel features (1-D gray or 3-D RGB, normalized to [0, 1])."""
 
     def __init__(
         self,
@@ -36,85 +34,89 @@ class KMeansSegmentation:
         self.total_distances: list[float] = []
 
     def _load_image(self, image_file):
+        """Loads image and converts pixels to a 2D array of floats between 0 and 1."""
         img = Image.open(image_file)
         if img.mode == "L":
             self.is_grayscale = True
             arr = np.asarray(img, dtype=np.float32).reshape(-1, 1) / 255.0
         else:
             self.is_grayscale = False
-            arr = (
-                np.asarray(img.convert("RGB"), dtype=np.float32).reshape(-1, 3) / 255.0
-            )
+            arr = np.asarray(img.convert("RGB"), dtype=np.float32).reshape(-1, 3) / 255.0
+            
         self.original_shape = (img.size[1], img.size[0])
         return arr
 
-    def _kmeans_plus_plus_init(self, data: np.ndarray) -> np.ndarray:
-        rng = random.Random(self.random_seed)
-        n, _ = data.shape
-        centers = [data[rng.randrange(n)].copy()]
-        for _ in range(1, self.k):
-            dist_sq = np.zeros(n, dtype=np.float64)
-            cstack = np.stack(centers, axis=0)
-            d = np.sum((data[:, None, :] - cstack[None, :, :]) ** 2, axis=2)
-            dist_sq = np.min(d, axis=1)
-            s = float(dist_sq.sum())
-            if s <= 1e-20:
-                centers.append(data[rng.randrange(n)].copy())
-                continue
-            probs = dist_sq / s
-            cdf = np.cumsum(probs)
-            r = rng.random()
-            pick = int(np.searchsorted(cdf, r))
-            centers.append(data[pick].copy())
-        return np.stack(centers, axis=0)
+    def _initialize_centers(self, data: np.ndarray) -> np.ndarray:
+        """Simple Initialization: Pick K random pixels from the image to act as starting centers."""
+        rng = np.random.default_rng(self.random_seed)
+        num_pixels = data.shape[0]
+        random_indices = rng.choice(num_pixels, self.k, replace=False)
+        return data[random_indices].copy()
 
-    def _assign(self, data: np.ndarray) -> tuple[np.ndarray, float]:
-        d2 = np.sum(
-            (data[:, None, :] - self.centers[None, :, :]) ** 2,
-            axis=2,
-        )
-        labels = np.argmin(d2, axis=1).astype(np.int32)
-        total = float(np.sum(np.min(d2, axis=1)))
-        return labels, total
+    def _assign_clusters(self, data: np.ndarray) -> tuple[np.ndarray, float]:
+        """Calculates the distance from every pixel to every center instantly."""
+        # NumPy Broadcasting: Expands data and centers to calculate all distances at once
+        squared_distances = np.sum((data[:, None, :] - self.centers[None, :, :]) ** 2, axis=2)
+        
+        # Find the index of the closest center for each pixel
+        labels = np.argmin(squared_distances, axis=1).astype(np.int32)
+        
+        # Calculate the total error (sum of distances to closest centers)
+        total_distance = float(np.sum(np.min(squared_distances, axis=1)))
+        
+        return labels, total_distance
 
     def _update_centers(self, data: np.ndarray, labels: np.ndarray) -> np.ndarray:
+        """Calculates new centers by finding the average color of all pixels in each cluster."""
         _, dim = data.shape
-        new_c = np.zeros((self.k, dim), dtype=np.float64)
-        rng = random.Random(self.random_seed)
-        for j in range(self.k):
-            mask = labels == j
-            if np.any(mask):
-                new_c[j] = data[mask].mean(axis=0)
+        new_centers = np.zeros((self.k, dim), dtype=np.float64)
+        
+        for cluster_idx in range(self.k):
+            # Grab only the pixels that belong to this specific cluster
+            pixels_in_cluster = data[labels == cluster_idx]
+            
+            if len(pixels_in_cluster) > 0:
+                new_centers[cluster_idx] = pixels_in_cluster.mean(axis=0)
             else:
-                new_c[j] = data[rng.randrange(data.shape[0])]
-        return new_c.astype(np.float64)
-
-    def _movement(self, old: np.ndarray, new: np.ndarray) -> float:
-        return float(np.sum(np.linalg.norm(old - new, axis=1)))
+                # If a cluster is empty, reset it with a random pixel
+                new_centers[cluster_idx] = data[random.randrange(data.shape[0])]
+                
+        return new_centers
 
     def fit(self, image_file):
+        """The main K-Means loop."""
         data = self._load_image(image_file).astype(np.float64)
-        self.centers = self._kmeans_plus_plus_init(data.astype(np.float32))
+        self.centers = self._initialize_centers(data)
         self.total_distances = []
 
         for _ in range(self.max_iterations):
-            labels, td = self._assign(data)
+            # Step 1: Assign pixels to the closest center
+            labels, total_dist = self._assign_clusters(data)
             self.labels = labels
-            self.total_distances.append(td)
-            new_c = self._update_centers(data, labels)
-            move = self._movement(self.centers, new_c)
-            if move < self.convergence_threshold:
-                self.centers = new_c
+            self.total_distances.append(total_dist)
+            
+            # Step 2: Calculate new centers based on the assignments
+            new_centers = self._update_centers(data, labels)
+            
+            # Step 3: Check if the centers have stopped moving
+            movement = float(np.sum(np.linalg.norm(self.centers - new_centers, axis=1)))
+            if movement < self.convergence_threshold:
+                self.centers = new_centers
                 break
-            self.centers = new_c
+                
+            self.centers = new_centers
 
-        self.labels, _ = self._assign(data)
+        self.labels, _ = self._assign_clusters(data)
         return self._build_output(data)
 
     def _build_output(self, data: np.ndarray):
+        """Formats the final arrays back into standard image shapes."""
         h, w = self.original_shape
-        flat = self.centers[self.labels]
-        seg_u8 = (flat * 255.0).clip(0, 255).astype(np.uint8)
+        
+        # Reconstruct the image using only the K center colors
+        flat_segmented = self.centers[self.labels]
+        seg_u8 = (flat_segmented * 255.0).clip(0, 255).astype(np.uint8)
+        
         if self.is_grayscale:
             segmented = seg_u8.reshape(h, w)
         else:
@@ -133,48 +135,29 @@ class KMeansSegmentation:
         }
 
     def _label_colors(self, labels_2d: np.ndarray, h: int, w: int) -> np.ndarray:
+        """Generates bright, distinct colors for the visualization map."""
         if self.is_grayscale:
             out = np.zeros((h, w), dtype=np.uint8)
             for i in range(self.k):
-                g = int(255 * i / (self.k - 1)) if self.k > 1 else 128
-                out[labels_2d == i] = g
+                shade = int(255 * i / (self.k - 1)) if self.k > 1 else 128
+                out[labels_2d == i] = shade
             return out
+            
         out = np.zeros((h, w, 3), dtype=np.uint8)
         for i in range(self.k):
-            hue = (i * 137.508) % 360
-            s = 0.7 + (i % 3) * 0.1
-            v = 0.8 + (i % 2) * 0.1
-            hh = hue / 360.0
-            if s == 0.0:
-                rgb = (v, v, v)
-            else:
-                hh = hh * 6.0
-                i_h = int(hh)
-                f = hh - i_h
-                p = v * (1.0 - s)
-                q = v * (1.0 - s * f)
-                t = v * (1.0 - s * (1.0 - f))
-                if i_h == 0:
-                    rgb = (v, t, p)
-                elif i_h == 1:
-                    rgb = (q, v, p)
-                elif i_h == 2:
-                    rgb = (p, v, t)
-                elif i_h == 3:
-                    rgb = (p, q, v)
-                elif i_h == 4:
-                    rgb = (t, p, v)
-                else:
-                    rgb = (v, p, q)
-            col = tuple(int(c * 255) for c in rgb)
-            out[labels_2d == i] = col
+            # Seed the random generator so cluster 1 is always the same color
+            np.random.seed(i * 100) 
+            color = np.random.randint(0, 255, size=3)
+            out[labels_2d == i] = color
+            
         return out
 
+
+# --- API / Frontend Wrapper Functions Below ---
 
 def _rewind(file_obj) -> None:
     if hasattr(file_obj, "seek"):
         file_obj.seek(0)
-
 
 def _to_b64(arr: np.ndarray) -> str:
     if arr.ndim == 2:
@@ -184,7 +167,6 @@ def _to_b64(arr: np.ndarray) -> str:
     buf = io.BytesIO()
     pil_img.save(buf, format="PNG")
     return base64.b64encode(buf.getvalue()).decode("utf-8")
-
 
 def segment_with_kmeans_from_scratch(
     image_file,
@@ -227,7 +209,6 @@ def segment_with_kmeans_from_scratch(
         "cluster_visualization": _to_b64(results["cluster_visualization"]),
         "n_clusters": k,
     }
-
 
 def run_kmeans_segmentation(image_file, **params) -> dict:
     """Entry point for `segmentation_controller` (adds `result_image`)."""
